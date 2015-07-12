@@ -8,17 +8,18 @@ struct person_data {
 
 static void set_name(struct person* self, const char* p_name)
 {
-	if (self->pd) {
-		if (self->pd->name)
-			free(self->pd->name);
-		if (p_name) {
-			self->pd->name = (char*) malloc((strlen(p_name)) * sizeof(char));
-			strcpy(self->pd->name + 1, p_name);
-		} else {
-			self->pd->name = 0;
-		}
-	}
+    if(self->pd) {
+        if (self->pd->name)
+            free(self->pd->name);
+        if (p_name) {
+            self->pd->name = (char*) malloc((strlen(p_name)+1) * sizeof(char));
+            strcpy(self->pd->name, p_name);
+        } else {
+            self->pd->name = 0;
+        }
+    }
 }
+
 
 static const char* get_name(struct person* self)
 {
@@ -30,11 +31,13 @@ static const char* get_name(struct person* self)
 struct person* create(const char* p_name)
 {
 	struct person* result = (struct person*) malloc(sizeof(struct person));
+	result->pd = (struct person_data*) malloc(sizeof(struct person_data));
+	result->pd->name = 0;
 	result->set_name = &set_name;
 	result->get_name = &get_name;
 
 	if (p_name) {
-		result->pd->name = (char*) malloc((strlen(p_name)) * sizeof(char));
+        result->pd->name = (char*) malloc((strlen(p_name)+1) * sizeof(char));
 		strcpy(result->pd->name, p_name);
 	}
 
@@ -44,9 +47,10 @@ struct person* create(const char* p_name)
 void destroy(struct person* p_person)
 {
 	if (p_person) {
-		if (p_person->pd->name)
-			free(p_person->pd->name);
-
+        if (p_person->pd)
+            if (p_person->pd->name)
+                    free(p_person->pd->name);
+            free(p_person->pd);
 		free(p_person);
 	}
 }
